@@ -2,13 +2,12 @@
 
 clojure용 graphql dataloader라이브러리 superlifter를 사용하기 위한 데모.
 
-
 https://github.com/hlship/boardgamegeek-graphql-proxy 소스코드를 참조.
-다른점은 아래와 같다.
+위 코드와 다른점은 아래와 같다.
 
 - 기존 코드의 leiningen 빌드에 문제가 있어서 `deps.edn` 으로 변경
-- 기존 스키마 제거
-- superlifter 추가
+- 기존 스키마 제거 (그에 따른 안쓰는 코드 전부 제거, 현재는 `main.clj`만 있음)
+- Superlifter 추가
 - 테스트용 comment 추가
 
 pedestal을 사용하고 있으며, 기술스택이 현재 사용하는 것과 다르지만, 문제가 없다고 생각하여 이렇게 진행.
@@ -24,7 +23,7 @@ repl을 켜고 `bgg-graphql-proxy.main` 의 `comment` 에 위치한 소스코드
 curl -XPOST -H "Content-Type:application/graphql" localhost:8888/graphql -d '{pets {id details {name}}}'
 ```
 
-혹은 graphiql을 사용하면 된다. `localhost:8888/` 로 접속하면 된다.  
+혹은 graphiql을 사용하면 된다. `localhost:8888/` 로 접속하면 된다. 
 
 
 ## License
