@@ -15,7 +15,7 @@
              "pet1"    {:name "ASDF"
                         :age 100}})
 
-;; without superlifter
+;; without superlifter STRT
 #_(defn- resolve-pets [context args parent]
   (log/info "resolve-pets is called")
   (let [ids (keys pet-db)]
@@ -25,11 +25,9 @@
 #_(defn- resolve-pet-details [context args {:keys [id]}]
   (log/info "resolve-pet-details is called")
   (get pet-db id))
+;;;; without superlifter END
 
-;; without superlifter
-
-;; with superlifter
-
+;;;; with superlifter START
 (s/def-fetcher FetchPets []
   (fn [_this env]
     #_(log/info env)
@@ -67,9 +65,8 @@
     (do
       (log/info "resolve-pet-details" context id)
       (s/enqueue! :pet-details (->FetchPet id)))))
+;;;; with superlifter END
 
-
-;; with superlifter
 (def schema
   {:objects {:PetDetails {:fields {:name {:type 'String}
                                    :age {:type 'Int}}}
