@@ -80,12 +80,6 @@
              {:type '(list :Pet)
               :resolve resolve-pets}}})
 
-
-(defn stop-server
-  [server]
-  (http/stop server)
-  nil)
-
 (def lacinia-opts {:graphiql true
                    :port 8888
                    :join? false})
@@ -93,9 +87,10 @@
 (def superlifter-args
   {:buckets {:default {:triggers {:queue-size {:threshold 1}}}
              :pet-details {:triggers {:elastic {:threshold 0}}}}
-   ;; 이건 내부적으로 쓰는 데이터 env인듯...? 팜모닝에는 일단 db 커넥션을 넣어놓은듯.
-   ;; 애초에 superlifter-args를 함수로 바꿔서 context를 처음부터 넣고 있음.
-   ;; 거기서 db를 빼서 여기에 넣음.
+   ;; superlifter는 내부적으로 urania를 사용한다.
+   ;; urania에 환경을 넣어서 -fetcher들이 사용할 수 있게 한다. 대게는 db 커넥션을 넣는듯함.
+   ;; db커넥션을 넣는다면 closure를 사용해야할 듯.
+   ;; 즉, superlifter-args를 함수로 바꿔서 context를 인자로 넣어서 사용하는 것이 일반적일 듯.
     :urania-opts {:env {:db pet-db}}})
 
 (def service
