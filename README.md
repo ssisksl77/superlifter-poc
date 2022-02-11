@@ -2,7 +2,14 @@
 
 clojure용 graphql dataloader라이브러리 superlifter를 사용하기 위한 데모.
 
-소스코드를 참조하였으며, 스키마 커스텀 및 lacinia에 superlifter를 넣어서 테스트 코드를 만듬. 
+
+https://github.com/hlship/boardgamegeek-graphql-proxy 소스코드를 참조.
+다른점은 아래와 같다.
+
+- 기존 코드의 leiningen 빌드에 문제가 있어서 `deps.edn` 으로 변경
+- 기존 스키마 제거
+- superlifter 추가
+- 테스트용 comment 추가
 
 pedestal을 사용하고 있으며, 기술스택이 현재 사용하는 것과 다르지만, 문제가 없다고 생각하여 이렇게 진행.
 
