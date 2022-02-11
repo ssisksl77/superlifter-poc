@@ -24,6 +24,9 @@ repl을 켜고 `bgg-graphql-proxy.main` 의 `comment` 에 위치한 소스코드
 curl -XPOST -H "Content-Type:application/graphql" localhost:8888/graphql -d '{pets {id details {name}}}'
 ```
 
+혹은 graphiql을 사용하면 된다. `localhost:8888/` 로 접속하면 된다.  
+
+
 ## License
 
 Copyright © 2017 Howard M. Lewis Ship
