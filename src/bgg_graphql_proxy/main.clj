@@ -1,16 +1,10 @@
 (ns bgg-graphql-proxy.main
-  (:require
-    [io.pedestal.http :as http]
-    [com.walmartlabs.lacinia :refer [execute]]
-    [bgg-graphql-proxy.schema :refer [bgg-schema]]
-    [bgg-graphql-proxy.server :refer [pedestal-server]]
-    [com.walmartlabs.lacinia.schema :as schema]
-    [superlifter.api :as s]
-    [urania.core :as u]
-    [com.walmartlabs.lacinia.pedestal :as lacinia-pedestal]
-    [com.walmartlabs.lacinia.schema :as schema]
-    [superlifter.lacinia :refer [with-superlifter inject-superlifter]]
-    [clojure.tools.logging :as log]))
+  (:require [clojure.tools.logging :as log]
+            [com.walmartlabs.lacinia.pedestal :as lacinia-pedestal]
+            [com.walmartlabs.lacinia.schema :as schema]
+            [io.pedestal.http :as http]
+            [superlifter.api :as s]
+            [superlifter.lacinia :refer [inject-superlifter with-superlifter]]))
 
 (def pet-db {"abc-123" {:name "Lyra"
                         :age 11}
@@ -23,13 +17,13 @@
 
 ;; without superlifter
 #_(defn- resolve-pets [context args parent]
-  (println "resolve-pets is called")
+  (log/info "resolve-pets is called")
   (let [ids (keys pet-db)]
     (map (fn [id] {:id id}) ids)))
 
 ;; invoked n times, once for every id from the parent resolver
 #_(defn- resolve-pet-details [context args {:keys [id]}]
-  (println "resolve-pet-details is called")
+  (log/info "resolve-pet-details is called")
   (get pet-db id))
 
 ;; without superlifter
@@ -38,14 +32,14 @@
 
 (s/def-fetcher FetchPets []
   (fn [_this env]
-    (println env)
+    #_(log/info env)
     (map (fn [id] {:id id})
          (keys (:db env)))))
 
 (s/def-superfetcher FetchPet [id]
   (fn [many env]
-    (println env)
-    (println "Combining request for " (count many) "pets")
+    #_(log/info env)
+    (log/info "pet-id를 이용하여 pet-detail을 가져오는 리퀘스트 " (count many) "개 합쳐짐.")
     (map (:db env) (map :id many))))
 
 (defn- resolve-pets [context _args _parent]
@@ -59,12 +53,13 @@
           ;; 트리거 바꾸지 않으니까 하나씩 실행됨. threshold가 0이면 바로 실행되는 듯.
           ;; 이게 enqueue를 하자마자 동작하는 것이 아닌가봄. 좀 느림.
           ;; 그래서 update-trigger! 를 이렇게 수행해도 문제가 없나봄.
-          #_(s/update-trigger! :pet-details  ;; bucket-id
-                             :elastic  ;; trigger-kind
-                             (fn [trigger-opts pet-ids]  ;; opts-fn
+          (s/update-trigger! :pet-details                ; bucket-id
+                             :elastic                    ; trigger-kind
+                             (fn [trigger-opts pet-ids]  ; opts-fn
                                ;; opts-fn으로 동적으로 잠깐 threshold를 바꿀 수도 있음.
-                               (println "update-trigger!" trigger-opts pet-ids)
-                               ;; pet-id 갯수만큼으로 임계를 바꿔줌.
+                               ;; (println "update-trigger!" trigger-opts pet-ids)
+                               ;; pet-id 갯수만큼으로 임계를 바꿔줌으로써 pet-id가 꽉차면 알아서
+                               ;; pet-details를 가져옴.
                                (update trigger-opts :threshold + (count pet-ids))))))))
 
 (defn- resolve-pet-details [context _args {:keys [id]}]
@@ -91,15 +86,9 @@
   (http/stop server)
   nil)
 
-(defn start-server
-  "Creates and starts Pedestal server, ready to handle Graphql (and Graphiql) requests."
-  []
-  (-> #_(bgg-schema)
-      (schema/compile schema)
-      pedestal-server
-      http/start))
-
-(def lacinia-opts {:graphql true})
+(def lacinia-opts {:graphiql true
+                   :port 8888
+                   :join? false})
 
 (def superlifter-args
   {:buckets {:default {:triggers {:queue-size {:threshold 1}}}
@@ -117,13 +106,9 @@
                               (lacinia-pedestal/default-interceptors (fn [] (schema/compile schema)) lacinia-opts)))))
 
 (comment
-  (def server (start-server))
-  ;; curl -XPOST localhost:8888/graphql -d '{pets {details {name}}}'
-  (stop-server server)
-
   (def runnable-service (http/create-server service))
   (def running-server (http/start runnable-service))
   (http/stop runnable-service)
-  (http/stop runing-server)
+  (http/stop running-server)
   ;; curl -XPOST -H "Content-Type:application/graphql" localhost:8888/graphql -d '{pets {id details {name}}}'
   )
