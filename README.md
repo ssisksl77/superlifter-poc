@@ -27,6 +27,10 @@ curl -XPOST -H "Content-Type:application/graphql" localhost:8888/graphql -d '{pe
 
 ## superlifter 사용/미사용 하면서 비교하기
 
+`main.clj`를 파일 내 주석을 보면
+
+- `without superlifter START|END` 사이의 함수주석을 풀면 `superlifter` 사용하지 않는 리졸버로 대체.
+- `with superlifter START|END` 사이의 함수주석을 풀면 `superlifter` 사용하는 리졸버로 대체. 
 
 ## License
 
