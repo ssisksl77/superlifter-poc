@@ -1,4 +1,4 @@
-(ns bgg-graphql-proxy.main
+(ns main
   (:require [clojure.tools.logging :as log]
             [com.walmartlabs.lacinia.pedestal :as lacinia-pedestal]
             [com.walmartlabs.lacinia.schema :as schema]
